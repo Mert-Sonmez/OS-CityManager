@@ -1,9 +1,9 @@
 #ifndef OPERATIONS_H
 #define OPERATIONS_H
 
-void add_report(const char *district, const char *username);
-void list_reports(const char *district);
-void remove_report(const char *district, const char *role, int target_id);
-void update_threshold(const char *district, const char *role, int new_threshold);
+void add_report(const char *district, const char *role, const char *username);
+void list_reports(const char *district, const char *role, const char *username);
+void remove_report(const char *district, const char *role, const char *username, int t_id);
+void update_threshold(const char *district, const char *role, const char *username, int val);
 
 #endif
