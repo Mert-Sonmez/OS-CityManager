@@ -1,9 +1,9 @@
-#include "permissions.h"
+#include "city_manager.h"
 #include <sys/stat.h>
 #include <string.h>
 
 void mode_string(mode_t mode, char *str) {
-    strcpy(str, "--");
+    strcpy(str, "---------");
 
     if (mode & S_IRUSR) str[0] = 'r';
     if (mode & S_IWUSR) str[1] = 'w';
