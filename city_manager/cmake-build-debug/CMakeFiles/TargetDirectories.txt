@@ -1,0 +1,3 @@
+/Users/mert/CLionProjects/city_manager/cmake-build-debug/CMakeFiles/City_Manager.dir
+/Users/mert/CLionProjects/city_manager/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/mert/CLionProjects/city_manager/cmake-build-debug/CMakeFiles/rebuild_cache.dir
