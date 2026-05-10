@@ -5,11 +5,12 @@
 #include <unistd.h>
 #include <string.h>
 
+// This function creates a new folder for the district
 void create_district_folder(const char *district_name) {
     mkdir(district_name, 0750);
     chmod(district_name, 0750);
 }
-
+// We create the files and set the correct permissions
 void setup_files(const char *district_name) {
     char filepath[256];
     int fd;
@@ -26,7 +27,7 @@ void setup_files(const char *district_name) {
     fd = open(filepath, O_CREAT | O_RDWR, 0644); close(fd);
     chmod(filepath, 0644);
 }
-
+// We create a symbolic link if it does not exist
 void check_create_symlink(const char *district_name) {
     if (strcmp(district_name, "unknown") == 0) return;
 

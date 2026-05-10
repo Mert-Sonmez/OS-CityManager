@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+// This is the main function where the program starts.
 int main(int argc, char *argv[]) {
     char role[20] = "unknown";
     char user[50] = "unknown";
@@ -14,6 +15,7 @@ int main(int argc, char *argv[]) {
     char **filter_conditions = NULL;
     int filter_cond_count = 0;
 
+    // We read the arguments to find the role and action
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--role") == 0 && i + 1 < argc) {
             strcpy(role, argv[i + 1]);
@@ -44,6 +46,11 @@ int main(int argc, char *argv[]) {
             strcpy(district, argv[i + 1]);
             threshold_val = atoi(argv[i + 2]);
             i += 2;
+            // We check if the user wants to remove a district from Phase 2
+        } else if (strcmp(argv[i], "--remove_district") == 0 && i + 1 < argc) {
+            strcpy(action, "remove_district");
+            strcpy(district, argv[i + 1]);
+            i++;
         } else if (strcmp(argv[i], "--filter") == 0 && i + 1 < argc) {
             strcpy(action, "filter");
             strcpy(district, argv[i + 1]);
@@ -54,7 +61,7 @@ int main(int argc, char *argv[]) {
     }
 
     check_create_symlink(district);
-
+// We call the correct function for the user action
     if (strcmp(action, "add") == 0) {
         create_district_folder(district);
         setup_files(district);
@@ -65,6 +72,10 @@ int main(int argc, char *argv[]) {
     }
     else if (strcmp(action, "view") == 0) {
         view_report(district, role, user, target_id);
+    }
+    //Phase 2
+    else if (strcmp(action, "remove_district") == 0 ) {
+        remove_district(district, role, user);
     }
     else if (strcmp(action, "remove_report") == 0) {
         remove_report(district, role, user, target_id);
@@ -78,6 +89,7 @@ int main(int argc, char *argv[]) {
     else {
         printf("Error: Invalid command!\n");
     }
+
 
     return 0;
 }

@@ -36,5 +36,6 @@ void update_threshold(const char *district, const char *role, const char *userna
 int parse_condition(const char *input, char *field, char *op, char *value);
 int match_condition(Report *r, const char *field, const char *op, const char *value);
 void filter_reports(const char *district, const char *role, const char *username, int cond_count, char **conditions);
+void remove_district(const char *district, const char *role, const char *username);
 
 #endif

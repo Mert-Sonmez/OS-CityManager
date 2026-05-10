@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
-
+// This function splits the filter text into three parts
 int parse_condition(const char *input, char *field, char *op, char *value) {
     char temp[256];
     strncpy(temp, input, sizeof(temp));
@@ -21,7 +21,7 @@ int parse_condition(const char *input, char *field, char *op, char *value) {
     }
     return 0;
 }
-
+// This function checks if a report matches the user condition
 int match_condition(Report *r, const char *field, const char *op, const char *value) {
     if (strcmp(field, "severity") == 0) {
         int val = atoi(value);
@@ -65,7 +65,7 @@ void filter_reports(const char *district, const char *role, const char *username
 
     Report r;
     int match_found = 0;
-
+    // We read the file record by record to find matches
     while (read(fd, &r, sizeof(Report)) > 0) {
         int all_matched = 1;
 

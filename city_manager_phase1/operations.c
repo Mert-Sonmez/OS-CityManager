@@ -6,7 +6,10 @@
 #include <unistd.h>
 #include <time.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
+#include <signal.h>
 
+// This function writes every action to the log file
 void log_action(const char *dist, const char *role, const char *usr, const char *act) {
     char path[256];
     sprintf(path, "%s/logged_district", dist);
@@ -28,18 +31,18 @@ void log_action(const char *dist, const char *role, const char *usr, const char 
     write(fd, log, len);
     close(fd);
 }
-
+// This function creates a new report and saves it to the binary file
 void add_report(const char *district, const char *role, const char *username) {
     Report r;
     memset(&r, 0, sizeof(Report));
 
-    r.id = (int)time(NULL);
+    r.id = (int) time(NULL);
     strcpy(r.inspector, username);
     r.timestamp = r.id;
 
     printf("Enter Lat Lon Category Severity: ");
     scanf("%f %f %s %d", &r.latitude, &r.longitude, r.category, &r.severity);
-    getchar(); // scanf sonrası buffer temizliği
+    getchar();
 
     printf("Description: ");
     fgets(r.description, sizeof(r.description), stdin);
@@ -53,7 +56,26 @@ void add_report(const char *district, const char *role, const char *username) {
         write(fd, &r, sizeof(Report));
         close(fd);
         printf("Report saved.\n");
-        log_action(district, role, username, "add");
+        int sig_success = 0;
+        int pid_fd = open(".monitor_pid", O_RDONLY);
+
+        if (pid_fd != -1) {
+            char buf[32];
+            int bytes = read(pid_fd, buf, sizeof(buf) - 1);
+            if (bytes > 0) {
+                buf[bytes] = '\0';
+                int monitor_pid = atoi(buf);
+                if (kill(monitor_pid, SIGUSR1) == 0) {
+                    sig_success = 1;
+                }
+            }
+            close(pid_fd);
+        }
+        if (sig_success) {
+            log_action(district, role, username, "add (monitor notified)");
+        } else {
+            log_action(district, role, username, "add (monitor not notified)");
+        }
     }
 }
 
@@ -98,6 +120,7 @@ void remove_report(const char *district, const char *role, const char *username,
     }
 
     if (found) {
+        // We shift the next records to the left to delete the old record
         off_t current_pos = lseek(fd, 0, SEEK_CUR);
         off_t write_pos = current_pos - sizeof(Report);
 
@@ -108,6 +131,7 @@ void remove_report(const char *district, const char *role, const char *username,
             write_pos += sizeof(Report);
             lseek(fd, next_read, SEEK_SET);
         }
+        // We make the file smaller after we remove the record
         ftruncate(fd, st.st_size - sizeof(Report));
         printf("Report %d removed.\n", t_id);
         log_action(district, role, username, "remove");
@@ -149,4 +173,27 @@ void view_report(const char *district, const char *role, const char *username, i
     close(fd);
     if (!found) printf("Report not found.\n");
     log_action(district, role, username, "view");
+}
+// It creates a child process to run the rm -rf command
+void remove_district(const char *district, const char *role, const char *username) {
+    if (strcmp(role, "manager") != 0) {
+        printf("Error: Manager only action.\n");
+        return;
+    }
+
+    pid_t pid = fork();
+
+    if (pid == 0) {
+        // Child process deletes the folder
+        execlp("rm", "rm", "-rf", district, NULL);
+        exit(1);
+    } else if (pid > 0) {
+        // Parent process waits and deletes the link
+        wait(NULL);
+        char symlink_name[256];
+        sprintf(symlink_name, "active_reports-%s", district);
+        unlink(symlink_name);
+        printf("District '%s' removed.\n", district);
+
+    }
 }

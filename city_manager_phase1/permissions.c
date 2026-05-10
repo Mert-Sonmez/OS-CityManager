@@ -2,9 +2,12 @@
 #include <sys/stat.h>
 #include <string.h>
 
+// This function makes a string to show file permissions
 void mode_string(mode_t mode, char *str) {
+    // We start with dashes because the default is no permissions
     strcpy(str, "---------");
 
+    // We check each permission bit and write the correct letter
     if (mode & S_IRUSR) str[0] = 'r';
     if (mode & S_IWUSR) str[1] = 'w';
     if (mode & S_IXUSR) str[2] = 'x';
